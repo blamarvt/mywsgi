@@ -1,1 +1,5 @@
-from base import *
+"""
+mywsgi.request.handler
+"""
+
+from .base import Handler

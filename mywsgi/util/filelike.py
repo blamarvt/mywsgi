@@ -16,3 +16,16 @@ class Filelike(object):
         self.config = config
         self.raw_file = to_be_wrapped
 
+    def stream(self):
+        """
+        Return the file-like. In the future this might rate limit the
+        file or buffer/chunk intelligently.
+        """
+        return self.raw_file
+
+    def get(self):
+        """
+        Return the contents of the file-like. In the future this might
+        rate limit the file, make a temp file, buffer, etc.
+        """
+        return self.raw_file.read()

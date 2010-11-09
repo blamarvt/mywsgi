@@ -4,7 +4,7 @@
 
 import httplib
 
-from mywsgi.response import Response
+from .base import Response
 
 class MultipleChoicesResponse(Response):
     """

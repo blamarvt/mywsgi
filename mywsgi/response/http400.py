@@ -4,7 +4,7 @@
 
 import httplib
 
-from mywsgi.response import Response
+from .base import Response
 
 class BadRequestResponse(Response):
     """
@@ -134,12 +134,12 @@ class UnsupportedMediaTypeResponse(Response):
     status_code = httplib.UNSUPPORTED_MEDIA_TYPE
 
 
-class RequestRangeNotSatisfiableResponse(Response):
+class RequestedRangeNotSatisfiableResponse(Response):
     """
-    416 Request Range Not Satisfiable
+    416 Requested Range Not Satisfiable
     """
     
-    status_code = httplib.REQUEST_RANGE_NOT_SATISFIABLE
+    status_code = httplib.REQUESTED_RANGE_NOT_SATISFIABLE
 
 
 class ExpectationFailedResponse(Response):

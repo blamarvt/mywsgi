@@ -2,7 +2,9 @@
 base.py
 """
 
-from mywsgi.util.exceptions import AbstractException
+import httplib
+
+from mywsgi.util.exceptions import AbstractClassException
 
 __config_section__ = "mywsgi.response"
 
@@ -22,7 +24,7 @@ class Response(object):
         self.start_response = start_response
 
         if self.__class__ is Response:
-            raise AbstractException(cls = self.__class__)
+            raise AbstractClassException(cls = self.__class__)
 
     def __call__(self, content, headers):
         """

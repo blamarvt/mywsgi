@@ -1,10 +1,10 @@
 """
-200.py
+http200.py
 """
 
 import httplib
 
-from mywsgi.response import Response
+from .base import Response
 
 class OkayResponse(Response):
     """

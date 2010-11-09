@@ -15,11 +15,20 @@ class ContentType(object):
         self.config = config
         self.mimetype = content_type_string.split(";")[0]
 
-    def is_form(self):
+    def is_urlencoded_form(self):
         """
-        Return true if mimetype is consistent with form data. Unsure
-        what to call this function other than is_form because this 
-        function *explicitly* does not return true for `multipart/form-data`
-        mimetypes.
+        Return true if mimetype is consistent with simple form data. 
         """
         return self.mimetype == "application/x-www-form-urlencoded"
+
+    def is_multipart_form(self):
+        """
+        Return true if mimetype is consistent with `multiple/form-data`.
+        """
+        return self.mimetype == "multipart/form-data"
+
+    def is_form(self):
+        """
+        Helper function for determining if this content-type is from a form.
+        """
+        return self.is_urlencoded_form() or self.is_multipart_form()

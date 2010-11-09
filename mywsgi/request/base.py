@@ -2,7 +2,9 @@
 request.py
 """
 
+import logging
 import urlparse
+
 from collections import defaultdict
 
 from mywsgi.request.router import Router
@@ -16,7 +18,7 @@ __config_section__ = "mywsgi.request"
 
 class Request(object):
     """
-    TODO: Define the mywsgi.http.request.Request class here
+    Request
     """
 
     url_class = Url
@@ -63,12 +65,13 @@ class Request(object):
         """
         Get 'random' HTTP_ headers from the WSGI environ.
         """
-        for key, value in self.environ.items() if key.startswith("HTTP_"):
-            header = key.lower()[5:]
-            if not hasattr(self, header):
-                setattr(self, header, value)
-            else:
-                logging.warn("%s header set, but %s already existed in this request." % (key, header))
+        for key, value in self.environ.items():
+            if key.startswith("HTTP_"):
+                header = key.lower()[5:]
+                if not hasattr(self, header):
+                    setattr(self, header, value)
+                else:
+                    logging.warn("%s header set, but request.%s already exists.", key, header)
 
     def environ_parse(self, key, a_callable):
         """
@@ -97,7 +100,7 @@ class Request(object):
         Instantiate the WSGI Url class defined by self.url_class.
         """
         return self.url_class(self.config, self.wsgi_scheme, self.server_name,
-            self.server_port, self,script_name, self.path_info, self.query_string)
+            self.server_port, self.script_name, self.path_info, self.query_string)
 
     def detect_content_type(self):
         """
@@ -138,7 +141,7 @@ class Request(object):
         data = defaultdict(list)
         data.update(urlparse.parse_qs(self.query_string))
 
-        if self.content_type.is_form():
+        if self.content_type.is_urlencoded_form():
             for key, value_list in urlparse.parse_qs(self.input_string()).items():
                 for value in value_list:
                     data[key].append(value)
