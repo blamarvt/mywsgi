@@ -1,23 +1,22 @@
 """
-application.py
+base.py
 """
 
 import traceback
 
 import mywsgi.util.exceptions as exceptions
 
-from mywsgi.router import Router
 from mywsgi.request import Request
 from mywsgi.response import Response
 
-__config_section__ = "mywsgi:app"
+__config_section__ = "mywsgi:application"
 
-class MyWsgiApplication(object):
+class WsgiApplication(object):
     """
-    Simple MyWSGI application.
+    Simple WSGI application which utilizes Request and Response
+    objects to correctly handle incomming traffic.
     """
 
-    router_class = Router
     request_class = Request
     response_class = Response
 
@@ -32,7 +31,7 @@ class MyWsgiApplication(object):
 
     def __call__(self, environ, start_response):
         """
-        All requests enter here.
+        All requests enter here. No balrogs please.
         """
         try:
             method = environ["REQUEST_METHOD"]
@@ -54,7 +53,7 @@ class MyWsgiApplication(object):
 
             return response.success()
 
-        except WsgiException as ex:
+        except exceptions.WsgiException as ex:
             response = self.create_response(self.config, self.environ)
             return response.error(ex)
 
@@ -81,22 +80,3 @@ class MyWsgiApplication(object):
         Create a WSGI Router class from the config given.
         """
         return self.router_class(config)
-
-    def choose_route(method, path):
-        """
-        Choose a route by testing the list of routes
-        for one that matches. If multiple match, then
-        we have to somehow choose the best one.
-        """
-        matches = []
-        for route in self.routes[method].values():
-            if route.match(path):
-                matches.append(route)
-
-        # Sort the results, which sorts the Routes by "confidence"
-        sort(matches)
-
-        if matches:
-            return matches[0]
-        else:
-            raise MethodNotAllowed()

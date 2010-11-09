@@ -1,4 +1,4 @@
 About
 -----
 
-mywsgi is a WEB FRAMEWORK
+mywsgi is not web-scale. There is potential though.

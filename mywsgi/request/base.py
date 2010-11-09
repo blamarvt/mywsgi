@@ -5,9 +5,11 @@ request.py
 import urlparse
 from collections import defaultdict
 
+from mywsgi.request.router import Router
+from mywsgi.request.handler import Handler
+
 from mywsgi.util.url import Url
 from mywsgi.util.filelike import Filelike
-from mywsgi.util.exceptions import RequestUriTooLong
 from mywsgi.util.contenttype import ContentType
 
 __config_section__ = "mywsgi.request"
@@ -18,6 +20,8 @@ class Request(object):
     """
 
     url_class = Url
+    router_class = Router
+    handler_class = Handler
     filelike_class = Filelike
     content_type_class = ContentType
 
