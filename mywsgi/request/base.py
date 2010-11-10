@@ -139,10 +139,10 @@ class Request(object):
             key is encountered more than once.
         """
         data = defaultdict(list)
-        data.update(urlparse.parse_qs(self.query_string))
+        data.update(urlparse.parse_qs(self.query_string or ""))
 
         if self.content_type.is_urlencoded_form():
-            for key, value_list in urlparse.parse_qs(self.input_string()).items():
+            for key, value_list in urlparse.parse_qs(self.input_string() or "").items():
                 for value in value_list:
                     data[key].append(value)
 

@@ -37,7 +37,7 @@ class TestRequest(unittest.TestCase):
         class instance.
         """
         r = Request(self.config, self.environ)
-        self.assertEquals("application/octet-stream", self.content_type.mimetype)
+        self.assertEquals("application/octet-stream", r.content_type.mimetype)
 
     def test_input_dict(self):
         """
@@ -47,10 +47,10 @@ class TestRequest(unittest.TestCase):
         r = Request(self.config, self.environ)
         self.assertEquals({}, r.input_dict())
 
-    def test_full_uri(self):
+    def test_full_url(self):
         """
         Test the concatenating of everything together for form
-        a full URI representation.
+        a full URL representation.
         """
         r = Request(self.config, self.environ)
-        self.assertEquals({}, r.full_uri())
+        self.assertEquals("http://127.0.0.1:80/", str(r.url))

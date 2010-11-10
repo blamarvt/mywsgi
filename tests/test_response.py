@@ -3,10 +3,8 @@ test_response.py
 """
 
 import unittest
-from pprint import pprint
-from ConfigParser import ConfigParser
 
-from mywsgi.view import View
+from mywsgi.util.config import Config
 from mywsgi.response import Response
 
 class TestResponse(unittest.TestCase):
@@ -18,12 +16,11 @@ class TestResponse(unittest.TestCase):
         """
         Load test configurations and WSGI environments.
         """
-        self.config = ConfigParser()
-        self.view = View()
+        self.config = Config()
     
     def test_basic_response(self):
         """
         A basic response can be made.
         """
-        r = Response(self.config, self.view)
+        r = Response(self.config)
         self.assertTrue(r)

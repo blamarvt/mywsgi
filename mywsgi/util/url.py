@@ -27,5 +27,16 @@ class Url(object):
         self.path = path
         self.query_string = query_string
 
-        self.full_url = "%s://%s:%d/%s/%s?%s" % (self.scheme, self.host, self.port, self.script,
-            self.path, self.query_string)
+        self.full_url = "%s://%s:%d%s" % (self.scheme, self.host, self.port, self.script)
+
+        if self.path:
+            self.full_url += self.path
+
+        if self.query_string:
+            self.full_url += "?%s" % self.query_string
+
+    def __str__(self):
+        """
+        Represent the URL as a string.
+        """
+        return self.full_url
