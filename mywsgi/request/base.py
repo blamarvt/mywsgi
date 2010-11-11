@@ -1,5 +1,21 @@
+#!/usr/bin/env python
+#
+# Copyright 2010 Brian Lamar
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
 """
-request.py
+mywsgi.request
 """
 
 import logging
@@ -7,23 +23,16 @@ import urlparse
 
 from collections import defaultdict
 
-from mywsgi.request.router import Router
-from mywsgi.request.handler import Handler
-
 from mywsgi.util.url import Url
 from mywsgi.util.filelike import Filelike
 from mywsgi.util.contenttype import ContentType
 
-__config_section__ = "mywsgi.request"
-
 class Request(object):
     """
-    Request
+    Request Object
     """
 
     url_class = Url
-    router_class = Router
-    handler_class = Handler
     filelike_class = Filelike
     content_type_class = ContentType
 
@@ -33,7 +42,7 @@ class Request(object):
         create a Request class instance.
         """
         self.config = config
-        self.environ = environ.copy()
+        self.environ = environ
 
         self._load_pep333_headers()
         self._load_random_headers()

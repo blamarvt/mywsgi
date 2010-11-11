@@ -10,6 +10,9 @@ To run:
     $ python dispatcher.py
 """
 
+from mywsgi.response import JsonResponse, XmlResponse, PlainTextResponse
+from mywsgi.dispatcher import Dispatcher
+
 CONTENT = "Hello World!" # This is the string which will be returned
 
 class RootDispatcher(Dispatcher):
@@ -21,6 +24,8 @@ class RootDispatcher(Dispatcher):
         """
         Define next stypes for this dispatcher.
         """
+        RootDispatcher.__init__(self)
+
         self.dispatch = {
             "json" : JsonDispatcher,
             "xml"  : XmlDispatcher,
@@ -66,6 +71,5 @@ class PlainTextDispatcher(Dispatcher):
 
 if __name__ == "__main__":
     root = RootDispatcher()
-    root.foreground_auto_config()
-    #root.foreground()
+    root.foreground()
     #root.daemonize()

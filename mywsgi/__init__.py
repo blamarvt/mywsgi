@@ -1,3 +1,3 @@
 """
-Please read the README.
+mywsgi
 """
