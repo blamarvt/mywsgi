@@ -5,15 +5,17 @@ json.py
 import httplib
 import simplejson as json
 
-class JsonResponse(object):
+from .base import Response
+
+class JsonResponse(Response):
     """
-    Base class for all responses in the `mywsgi` framework.
+    A JSON formatted response.
     """
 
-    status_code = httplib.OK
-
-    def get_content(self):
+    def __init__(self, status, content = None, headers = None):
         """
-        Retrieve the content of this response in JSON format.
+        Create a JsonResponse.
         """
-        return json.dumps(self.content)
+        Response.__init__(self, status, content, headers)
+        self.content_type = "application/json"
+        self.content = json.dumps(self.content)

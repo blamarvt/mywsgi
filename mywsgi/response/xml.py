@@ -5,15 +5,17 @@ xml.py
 import httplib
 import lxml.etree
 
-class XmlResponse(object):
+from .base import Response
+
+class XmlResponse(Response):
     """
-    Base class for all responses in the `mywsgi` framework.
+    An XML formatted response.
     """
 
-    status_code = httplib.OK
-
-    def get_content(self):
+    def __init__(self, status, content = None, headers = None):
         """
-        Retrieve the content of this response in JSON format.
+        Create an XML response.
         """
-        return lxml.etree.tostring(root)
+        Response.__init__(self, status, content, headers)
+        self.content_type = "application/xml"
+        self.content = lxml.etree.tostring(self.content)

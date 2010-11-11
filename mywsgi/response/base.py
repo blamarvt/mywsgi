@@ -75,8 +75,21 @@ class Response(object):
         """
         Set the status code for this resposne.
         """
-        self._status = value or 500
+        self._status = value or 200
+
+    def get_content_type(self):
+        """
+        Get the response's Content-Type header.
+        """
+        return self.headers["Content-Type"] or "text/plain"
+
+    def set_content_type(self, value):
+        """
+        Set the response's Content-Type header.
+        """
+        self.headers["Content-Type"] = value
 
     status = property(get_status, set_status)
     content = property(get_content, set_content)
     headers = property(get_headers, set_headers)
+    content_type = property(get_content_type, set_content_type)

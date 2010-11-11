@@ -3,11 +3,11 @@ test_request.py
 """
 
 import unittest
-from pprint import pprint
+
 from wsgiref import util
-from ConfigParser import ConfigParser
 
 from mywsgi.request import Request
+from mywsgi.util.config import Configuration
 from mywsgi.util.contenttype import ContentType
 
 class TestRequest(unittest.TestCase):
@@ -19,9 +19,10 @@ class TestRequest(unittest.TestCase):
         """
         Load test configurations and WSGI environments.
         """
-        self.config = ConfigParser()
+        self.config = Configuration()
         self.environ = {}
 
+        # Setup faux WSGI environment
         util.setup_testing_defaults(self.environ)
     
     def test_basic_request(self):

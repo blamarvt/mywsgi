@@ -1,4 +1,4 @@
 """
-mywsgi.dispatcher
+mywsgi.app
 """
-from .base import Dispatcher
+from .base import Application
