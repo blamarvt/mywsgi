@@ -20,8 +20,6 @@ mywsgi.response
 
 import httplib
 
-from mywsgi.util.exceptions import AbstractClassException
-
 class Response(object):
     """
     Base class for all responses in the `mywsgi` framework.
@@ -37,39 +35,42 @@ class Response(object):
         self.content = content
         self.headers = headers
         
-        if self.__class__ is Response:
-            raise AbstractClassException(cls = self.__class__)
-
     def get_content(self):
         """
         Retrieve the content, use for overriding in subclasses.
         """
-        return self.content
+        return self._content
 
     def set_content(self, value):
         """
         Set the content for this response.
         """
-        self._content = value or ""
+        self._content = value or self.status
+
+    def get_wsgi_headers(self):
+        """
+        Get headers in a WSGI standard format.
+        """
+        return [(k,v) for k,v in self.headers.items()]
 
     def get_headers(self):
         """
         Retrieve the response headers.
         """
-        return self.headers
+        return self._headers
 
     def set_headers(self, value):
         """
         Set the headers for this response.
         """
-        self._headers = value or []
+        self._headers = value or {}
 
     def get_status(self):
         """
         Retrieve the HTTP status message for this response.
         (e.g. 200 OK, 403 Forbidden, 500 Internal Server Error)
         """
-        return "%d %s" % (self.status, httplib.responses[self.status])
+        return "%d %s" % (self._status, httplib.responses[self._status])
 
     def set_status(self, value):
         """

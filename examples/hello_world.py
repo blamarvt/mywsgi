@@ -2,27 +2,38 @@
 hello_world.py
 """
 
-from mywsgi.application import Application
+from mywsgi.app import Application
 from mywsgi.response import PlainTextResponse
-from mywsgi.request import RequestHandler, RegexRouter
 
-class ExampleHandler(RequestHandler):
+class HelloWorldApp(Application):
     """
     Very simple request handler which has functions such as `handle_get`, 
     `handle_post`, `handle_put`, and `handle_delete` which can be defined 
     to return data.
     """
 
-    route = RegexRouter.routing_decorator()
-
-    @route(r"/")
-    def handle_get(self):
+    def handle_get(self, request):
         """
-        RequestHandlers provide function such as self.write() and 
-        self.finish() to write data to the HTTP stream.
+        GET / is handled here.
         """
         return PlainTextResponse("Hello World")
 
+root_app = Application()
+step_one = Application()
+step_two = Application()
+hello_world = Application()
+
+root_app.next_steps = {
+    "hello" : step_one
+}
+
+step_one.next_steps = {
+    "world" : step_two
+}
+
+step_two.next_steps = {
+    "nick" : hello_world
+}
 
 if __name__ == "__main__":
-    Application(ExampleHandler).run()
+    root_app.serve_foreground()

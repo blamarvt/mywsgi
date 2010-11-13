@@ -23,7 +23,7 @@ import traceback
 import mywsgi.util.exceptions as exceptions
 
 from mywsgi.request import Request
-from mywsgi.response import Response
+from mywsgi.response import Response, WsgiException
 from mywsgi.util import Configuration
 
 class Application(object):
@@ -44,6 +44,7 @@ class Application(object):
 
     request_class = Request
     response_class = Response
+    next_steps = {}
 
     def __init__(self, config = None):
         """
@@ -52,6 +53,7 @@ class Application(object):
         the application is running.
         """
         self.config = config or Configuration()
+        self.logger = self.config.logger
 
     def __call__(self, environ, start_response):
         """
@@ -62,26 +64,27 @@ class Application(object):
 
         try:
             if not self.is_active():
-                raise exceptions.ServiceUnavailableResponse()
+                raise WsgiException(503)
 
             request = self.create_request()
             response = self.execute(request)
 
         except WsgiException as ex:
-            response = ex
+            response = ex.response
 
         except Exception as ex:
             tb = traceback.format_exc()
-            response = self.response_class(status_code = 500, content = tb)
+            response = self.response_class(status = 500, content = tb)
 
-        return response.respond()
+        start_response(response.get_status(), response.get_wsgi_headers())
+        return response.get_content()
 
     def is_active(self):
         """
         is_active : Is this dispatcher active? If no, all requests terminating 
                     at this dispatcher will return a 503 Service Unavailable
         """
-        self.is_active = self.config(self, "is_active", True, bool)
+        return self.config(self, "is_active", True, bool)
 
     def create_request(self):
         """
@@ -94,11 +97,19 @@ class Application(object):
         """
         Retrieve the next step for this dispatcher.
         """
-        next_step = request.consume_script_name()
-        if next_step is None or self.next_steps.get(next_step) is None:
+        next_step = request.consume()
+        self.logger.debug("Next Step (string): %s" % next_step)
+
+        if next_step is None:
             return None
         else:
-            return self.next_steps.get(next_step)(self.environ, self.start_response)
+            next_step = self.next_steps.get(next_step)
+            self.logger.debug("Next Step (from dispatcher): %r" % next_step)
+            self.logger.debug("Dispatcher: %s" % self.next_steps)
+            try:
+                return next_step(self.environ, self.start_response) 
+            except TypeError:
+                raise WsgiException(404)
 
     def execute(self, request):
         """
@@ -106,17 +117,27 @@ class Application(object):
         """
         next_step = self.next_step(request)
         if next_step is not None:
+            self.logger.debug("Next step found. (%r)" % next_step)
             return next_step(request)
 
         known_methods = ['GET','PUT','POST','DELETE','HEAD','OPTIONS','TRACE','CONNECT']
         method_name = "handle_%s" % request.method.lower()
 
+        self.logger.debug("Calling %s on %r" % (method_name, self))
+
         try:
             method = getattr(self, method_name)
         except AttributeError:
             if request.method.lower() in known_methods:
-                return exceptions.MethodNotAllowedResponse()
+                return WsgiException(405)
             else:
-                return exceptions.NotImplementedResponse()
+                return WsgiException(501)
 
         return method(request)
+
+    def serve_foreground(self):
+        """
+        Serve this application via a WSGI server on the console.
+        """
+        from gevent import pywsgi
+        pywsgi.WSGIServer(('0.0.0.0', 8080), self).serve_forever()

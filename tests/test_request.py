@@ -55,3 +55,11 @@ class TestRequest(unittest.TestCase):
         """
         r = Request(self.config, self.environ)
         self.assertEquals("http://127.0.0.1:80/", str(r.url))
+
+    def test_query_string_dict(self):
+        """
+        Test parse of a query string.
+        """
+        self.environ['QUERY_STRING'] = "asdf=123&abd=def"
+        r = Request(self.config, self.environ)
+        self.assertEquals({"asdf":"123","abd":"def"}, r.input_dict())

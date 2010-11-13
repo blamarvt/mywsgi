@@ -27,10 +27,13 @@ class Url(object):
         self.path = path
         self.query_string = query_string
 
-        self.full_url = "%s://%s:%d%s" % (self.scheme, self.host, self.port, self.script)
+        self.full_url = "%s://%s:%d" % (self.scheme, self.host, self.port)
+
+        if self.script:
+            self.full_url += "/" + self.script
 
         if self.path:
-            self.full_url += self.path
+            self.full_url += "/" + self.path
 
         if self.query_string:
             self.full_url += "?%s" % self.query_string

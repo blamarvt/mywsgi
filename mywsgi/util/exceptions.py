@@ -30,3 +30,5 @@ class AbstractClassException(MyException):
     """
     
     message = "'%(cls)s' is an abstract class, and may not be implemented."
+
+

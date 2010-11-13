@@ -18,7 +18,7 @@
 mywsgi.request
 """
 
-import logging
+import urllib
 import urlparse
 
 from collections import defaultdict
@@ -44,6 +44,19 @@ class Request(object):
         self.config = config
         self.environ = environ
 
+    def __getattr__(self, key):
+        """
+        Override __getattr__ to prefer grabbing items from environ
+        over
+
+        # Load environ into request
+        for k,v in environ.values():
+            request_key = k.lower().replace(".", "_")
+            setattr(self, request_key, v)
+
+        self.environ = environ
+        self.logger = self.config.logger
+
         self._load_pep333_headers()
         self._load_random_headers()
         
@@ -63,7 +76,7 @@ class Request(object):
         self.wsgi_runonce = self.environ_parse('wsgi.run_once', bool)
         self.method = self.environ_parse('REQUEST_METHOD', str)
         self.script_name = self.environ_parse('SCRIPT_NAME', str)
-        self.path_info = self.environ_parse('PATH_INFO', str)
+        self.path_info = self.environ_parse('PATH_INFO', str).strip("/")
         self.query_string = self.environ_parse('QUERY_STRING', str)
         self.content_type = self.environ_parse('CONTENT_TYPE', self.create_content_type)
         self.content_length = self.environ_parse('CONTENT_LENGTH', int)
@@ -80,7 +93,7 @@ class Request(object):
                 if not hasattr(self, header):
                     setattr(self, header, value)
                 else:
-                    logging.warn("%s header set, but request.%s already exists.", key, header)
+                    self.logger.warn("%s header set, but request.%s already exists.", key, header)
 
     def environ_parse(self, key, a_callable):
         """
@@ -156,7 +169,32 @@ class Request(object):
                     data[key].append(value)
 
         if not allow_multiple_values:
-            for item in data.values():
-                item = item[0]
+            for key in data.keys():
+                data[key] = data[key][0]
 
         return data
+
+    def consume(self):
+        """
+        'Consume' the next part of the request (SCRIPT_NAME) and return 
+        what is left to be processed.
+        """
+        self.logger.debug("(old) SCRIPT_NAME = '%s'" % self.script_name)
+        self.logger.debug("(old) PATH_INFO = '%s'" % self.path_info)
+
+        if self.path_info == "":
+            return None
+
+        if "/" in self.path_info:
+            part, path = self.path_info.split("/", 1)
+        else:
+            part, path = self.path_info, ""
+
+        part = urllib.unquote(part)
+        self.script_name = self.script_name + "/" + part
+        self.path_info = "/" + path
+
+        self.logger.debug("(new) SCRIPT_NAME = '%s'" % self.script_name)
+        self.logger.debug("(new) PATH_INFO = '%s'" % self.path_info)
+
+        return part
